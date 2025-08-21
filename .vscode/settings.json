@@ -23,6 +23,18 @@
 	// TAB:
 	"editor.insertSpaces": false, // VSCODE WON'T INSERT SPACES WHEN PRESSING 'TAB'.
 	"editor.tabSize": 4, // THE NUMBER OF SPACES A TAB IS EQUAL TO.
-	"editor.detectIndentation": false // DISABLE 'editor.tabSize' AND 'editor.insertSpaces' AUTOMATIC DETECTION BASED ON THE FILE CONTENTS.
+	"editor.detectIndentation": false, // DISABLE 'editor.tabSize' AND 'editor.insertSpaces' AUTOMATIC DETECTION BASED ON THE FILE CONTENTS.
+	/////
+	// EXPLORER SIDEBAR:
+	"explorer.sortOrder": "filesFirst", // FILES DISPLAYED BEFORE FOLDERS.
+	"explorer.confirmDelete": false, // WON'T ASK FOR CONFIRMATION WHEN DELETING A FILE VIA THE TRASH.
+	"explorer.compactFolders": false, // SINGLE CHILD FOLDERS WON'T BE COMPRESSED IN A COMBINED TREE ELEMENT.
+	"workbench.tree.indent": 18, // TREE INDENTATION IN PIXELS.
+	/////
+	// STARTUP:
+	"workbench.startupEditor": "none", // START WITHOUT AN EDITOR IF NONE ARE RESTORED FROM THE PREVIOUS SESSION.
+	/////
+	// WINDOW:
+	"window.title": "${rootName}" // VSCODE WINDOW TITLE.
 	/////
 }

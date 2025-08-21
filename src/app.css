@@ -1,1 +1,12 @@
 @import 'tailwindcss';
+
+@plugin "daisyui" {
+	logs: false;
+	prefix: 'daisy-';
+}
+
+@layer utilities {
+	.classButton {
+		@apply daisy-btn daisy-btn-sm bg-slate-700 text-white no-underline hover:bg-slate-500;
+	}
+}
