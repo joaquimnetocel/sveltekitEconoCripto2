@@ -1,2 +1,27 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+</script>
+
+<div class="p-5">
+	<ul class="list-inside list-disc space-y-5">
+		<li>
+			EXEMPLOS
+			<ul class="ml-4 list-inside list-disc">
+				<li>APEX</li>
+				<ul class="ml-4 list-inside list-disc">
+					<li>
+						<a href="/exemplos/apex/velas" class="text-blue-500 underline">GRÁFICO DE VELAS</a>
+					</li>
+				</ul>
+				<li>LIGHTWEIGHT</li>
+				<ul class="ml-4 list-inside list-disc">
+					<li>
+						<a href="/exemplos/lightweight/velas" class="text-blue-500 underline"
+							>GRÁFICO DE VELAS</a
+						>
+					</li>
+				</ul>
+			</ul>
+		</li>
+		<li>APLICAÇÕES</li>
+	</ul>
+</div>

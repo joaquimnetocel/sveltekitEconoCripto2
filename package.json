@@ -36,6 +36,8 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
-		"apexcharts": "^5.3.3"
+		"apexcharts": "^5.3.3",
+		"lightweight-charts": "^5.0.8",
+		"technicalindicators": "^3.1.0"
 	}
 }
