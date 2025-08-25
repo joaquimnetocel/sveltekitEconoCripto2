@@ -43,20 +43,21 @@
 </script>
 
 <div>
-	SÍMBOLO: <select bind:value={simbolo}>
+	SÍMBOLO: <select class="classSelect" bind:value={simbolo}>
 		{#each simbolos as current, i (i)}
 			<option value={current}>{current}</option>
 		{/each}
 	</select>
 
 	PERÍODO:
-	<select bind:value={periodo}>
+	<select class="classSelect" bind:value={periodo}>
 		{#each periodos as current, i (i)}
 			<option value={current}>{current}</option>
 		{/each}
 	</select>
 	QUANTIDADE:
 	<input
+		class="classInput"
 		type="number"
 		bind:value={quantidade_digitada}
 		onkeydown={funcaoTecla}

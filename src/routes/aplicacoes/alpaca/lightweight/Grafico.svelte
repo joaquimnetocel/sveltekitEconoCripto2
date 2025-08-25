@@ -8,7 +8,7 @@
 	import type { typeLinha } from '$lib/lightweight/typeLinha';
 	import type { typeVela } from '$lib/lightweight/typeVela';
 	import Velas from '$lib/lightweight/Velas.svelte';
-	import { funcaoFetchDosDados } from './funcaoFetchDosDados';
+	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
 
 	let {
 		agora,
@@ -73,7 +73,7 @@
 	}
 
 	async function funcaoDados() {
-		const dados_sem_tipagem = await funcaoFetchDosDados({
+		const dados_sem_tipagem = await funcaoFetchDaApi({
 			periodo,
 			quantidade,
 			simbolo,
@@ -122,5 +122,6 @@
 	<div>CARREGANDO...</div>
 {:then}
 	<Velas velas={velas as typeVela[]} linhas={mediasmoveis} />
+	RSI:
 	<Linhas linhas={rsi} />
 {/await}

@@ -1,4 +1,4 @@
-import { funcaoFetch } from '$lib/alpaca/funcaoFetch';
+import { funcaoFetch } from '$lib/alpaca/funcaoFetch.server';
 import { simbolos } from '$lib/alpaca/simbolos';
 import type { typePeriodo } from '$lib/alpaca/typePeriodo';
 import { json } from '@sveltejs/kit';
