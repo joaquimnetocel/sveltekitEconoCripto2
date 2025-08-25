@@ -114,14 +114,15 @@
 	});
 </script>
 
-<div>
-	{simbolo} ({periodo})
+<div class="rounded-3xl border-2 p-2">
+	<div>
+		{simbolo} ({periodo})
+	</div>
+	{#await funcaoDados()}
+		<div>CARREGANDO...</div>
+	{:then}
+		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} />
+		RSI:
+		<Linhas linhas={rsi} />
+	{/await}
 </div>
-
-{#await funcaoDados()}
-	<div>CARREGANDO...</div>
-{:then}
-	<Velas velas={velas as typeVela[]} linhas={mediasmoveis} />
-	RSI:
-	<Linhas linhas={rsi} />
-{/await}
