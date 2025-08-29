@@ -22,22 +22,24 @@
 				</ul>
 			</ul>
 		</li>
-		<li>APLICAÇÕES</li>
-		<ul class="ml-4 list-inside list-disc">
-			<li>APEX</li>
+		<li>
+			APLICAÇÕES
 			<ul class="ml-4 list-inside list-disc">
-				<li>
-					<a href="/exemplos/apex/velas" class="text-blue-500 underline">FALTA</a>
-				</li>
+				<li>APEX</li>
+				<ul class="ml-4 list-inside list-disc">
+					<li>
+						<a href="/aplicacoes/alpaca/apex" class="text-blue-500 underline">GRÁFICO DE VELAS</a>
+					</li>
+				</ul>
+				<li>LIGHTWEIGHT</li>
+				<ul class="ml-4 list-inside list-disc">
+					<li>
+						<a href="/aplicacoes/alpaca/lightweight/" class="text-blue-500 underline"
+							>GRÁFICO DE VELAS</a
+						>
+					</li>
+				</ul>
 			</ul>
-			<li>LIGHTWEIGHT</li>
-			<ul class="ml-4 list-inside list-disc">
-				<li>
-					<a href="/aplicacoes/alpaca/lightweight/" class="text-blue-500 underline"
-						>GRÁFICO DE VELAS</a
-					>
-				</li>
-			</ul>
-		</ul>
+		</li>
 	</ul>
 </div>

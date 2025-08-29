@@ -1,10 +1,11 @@
 <script lang="ts">
+	import type { typeDado } from '$lib/alpaca/typeDado';
+	import type { typePeriodo } from '$lib/alpaca/typePeriodo';
+	import Linhas from '$lib/apex/Linhas.svelte';
 	import Velas from '$lib/apex/Velas.svelte';
 	import { funcaoAlpacaParaApex } from '$lib/apex/funcaoAlpacaParaApex';
 	import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
-	// import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
-	import type { typeDado } from '$lib/alpaca/typeDado';
-	import type { typePeriodo } from '$lib/alpaca/typePeriodo';
+	import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
 	import type { typeLinha } from '$lib/apex/typeLinha';
 	import type { typeVela } from '$lib/apex/typeVela';
 	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
@@ -23,47 +24,49 @@
 
 	let velas = $state<typeVela[]>();
 	let mediasmoveis = $state<typeLinha[]>([]);
-	// let rsi = $state<typeLinha[]>([]);
+	let rsi = $state<typeLinha[]>([]);
 
 	function funcaoCalcularMediasMoveis() {
 		if (velas === undefined) return;
 		mediasmoveis[0] = {
-			descricao: 'MÉDIA MÓVEL SIMPLES (5)',
-			cor: 'blue',
-			pontos: funcaoCriarMediaMovel({
+			opcoes: {
+				descricao: 'MÉDIA MÓVEL SIMPLES (5)',
+				cor: 'blue',
+			},
+			dados: funcaoCriarMediaMovel({
 				velas,
 				periodo: 5,
 			}),
 		};
 		mediasmoveis[1] = {
-			descricao: 'MÉDIA MÓVEL SIMPLES (10)',
-			cor: 'red',
-			pontos: funcaoCriarMediaMovel({ velas, periodo: 10 }),
+			opcoes: {
+				descricao: 'MÉDIA MÓVEL SIMPLES (10)',
+				cor: 'red',
+			},
+			dados: funcaoCriarMediaMovel({ velas, periodo: 10 }),
 		};
 	}
 
-	// function funcaoCalcularRsi() {
-	// 	if (velas === undefined) return;
-	// 	rsi[0] = {
-	// 		opcoes: {
-	// 			color: 'red',
-	// 			lineStyle: 2,
-	// 			lineWidth: 2,
-	// 		},
-	// 		dados: funcaoCriarRsi({
-	// 			velas,
-	// 			periodo: 5,
-	// 		}),
-	// 	};
-	// 	rsi[1] = {
-	// 		opcoes: {
-	// 			color: 'orange',
-	// 			lineStyle: 2,
-	// 			lineWidth: 2,
-	// 		},
-	// 		dados: funcaoCriarRsi({ velas, periodo: 10 }),
-	// 	};
-	// }
+	function funcaoCalcularRsi() {
+		if (velas === undefined) return;
+		rsi[0] = {
+			opcoes: {
+				cor: 'blue',
+				descricao: 'RSI (5)',
+			},
+			dados: funcaoCriarRsi({
+				velas,
+				periodo: 5,
+			}),
+		};
+		rsi[1] = {
+			opcoes: {
+				cor: 'red',
+				descricao: 'RSI (10)',
+			},
+			dados: funcaoCriarRsi({ velas, periodo: 10 }),
+		};
+	}
 
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
@@ -75,6 +78,7 @@
 		const arrayVelasApex = await funcaoAlpacaParaApex(arrayDadosAlpaca);
 		velas = arrayVelasApex;
 		funcaoCalcularMediasMoveis();
+		funcaoCalcularRsi();
 	}
 
 	let minuto = $derived(agora.getMinutes());
@@ -114,5 +118,6 @@
 		<div>CARREGANDO...</div>
 	{:then}
 		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} />
+		<Linhas linhas={rsi} />
 	{/await}
 </div>

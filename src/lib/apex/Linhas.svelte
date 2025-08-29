@@ -1,14 +1,11 @@
 <script lang="ts">
 	import type { typeLinha } from '$lib/apex/typeLinha';
-	import type { typeVela } from '$lib/apex/typeVela';
 	import type ApexCharts from 'apexcharts';
 	import { untrack } from 'svelte';
 
 	let {
-		velas,
 		linhas = [],
 	}: {
-		velas: typeVela[];
 		linhas?: typeLinha[];
 	} = $props();
 
@@ -18,14 +15,14 @@
 	const opcoes: ApexCharts.ApexOptions = {
 		series: [],
 		chart: {
-			type: 'candlestick',
-			height: 350,
+			type: 'line',
+			height: 150,
 			group: 'social',
-			id: 'candles',
+			id: 'lines',
 		},
 		stroke: {
-			width: [2, ...linhas.map(() => 2)],
-			dashArray: [0, ...linhas.map(() => 5)], // candlestick (0 = sólido), linha (5 = tracejada)
+			width: [...linhas.map(() => 2)],
+			dashArray: [...linhas.map(() => 5)], // candlestick (0 = sólido), linha (5 = tracejada)
 		},
 		// title: {
 		// text: 'CandleStick Chart',
@@ -37,11 +34,11 @@
 				datetimeUTC: false, // <- Isso impede a conversão para horário local
 			},
 		},
-		yaxis: {
-			tooltip: {
-				enabled: true,
-			},
-		},
+		// yaxis: {
+		// 	tooltip: {
+		// 		enabled: true,
+		// 	},
+		// },
 	};
 
 	async function funcaoAsyncEffect() {
@@ -59,18 +56,13 @@
 	$effect(() => {
 		if (grafico) {
 			const arraySeries: ApexCharts.ApexOptions['series'] = [];
-			arraySeries[0] = {
-				data: velas,
-				type: 'candlestick',
-				name: 'COTAÇÕES',
-				color: 'black',
-			};
-			for (let i = 1; i < linhas.length + 1; i++) {
+			for (let i = 0; i < linhas.length; i++) {
 				arraySeries[i] = {
 					type: 'line',
-					name: linhas[i - 1].opcoes.descricao,
-					data: linhas[i - 1].dados,
-					color: linhas[i - 1].opcoes.cor,
+					name: linhas[i].opcoes.descricao,
+					data: linhas[i].dados,
+					color: linhas[i].opcoes.cor,
+					group: 'social',
 				};
 			}
 			grafico.updateSeries(arraySeries);

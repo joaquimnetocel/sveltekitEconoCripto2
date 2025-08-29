@@ -16,18 +16,22 @@
 	let quantidade = $state(30);
 </script>
 
-<div>
-	RELÓGIO: <Hora inicio={data.dateAlpaca} bind:agora />
-</div>
-<OpcoesDoGrafico
-	bind:periodo
-	bind:simbolo
-	bind:quantidade
-	{periodos}
-	simbolos={simbolos.map((corrente) => corrente.simbolo)}
-/>
-<div>
-	{#if agora}
-		<Grafico {simbolo} {periodo} {agora} {quantidade} />
-	{/if}
+<div class="p-5">
+	<a class="classButton mb-2" href="/">VOLTAR</a>
+
+	<div>
+		RELÓGIO: <Hora inicio={data.dateAlpaca} bind:agora />
+	</div>
+	<OpcoesDoGrafico
+		bind:periodo
+		bind:simbolo
+		bind:quantidade
+		{periodos}
+		simbolos={simbolos.map((corrente) => corrente.simbolo)}
+	/>
+	<div>
+		{#if agora}
+			<Grafico {simbolo} {periodo} {agora} {quantidade} />
+		{/if}
+	</div>
 </div>
