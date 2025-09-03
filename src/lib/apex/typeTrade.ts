@@ -1,10 +1,10 @@
 export type typeTrade = {
-	dateBuy: Date;
-	dateSell: Date;
-	numberBuyPrice: number;
-	numberSellPrice: number;
-	numberProfit: number;
-	numberProfitFactor: number;
-	enumGainOrLoss: 'enumGain' | 'enumLoss' | 'enumNotFinished';
-	numberDuration: number;
+	dataDaCompra: Date;
+	dataDaVenda: Date;
+	precoDeCompra: number;
+	precoDeVenda: number;
+	lucro: number;
+	fatorDeLucro: number;
+	enumGanhoOuPerda: 'enumGanho' | 'enumPerda' | 'enumNaoRealizado';
+	duracao: number;
 };

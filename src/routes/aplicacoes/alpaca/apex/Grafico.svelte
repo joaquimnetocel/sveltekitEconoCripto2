@@ -6,7 +6,12 @@
 	import { funcaoAlpacaParaApex } from '$lib/apex/funcaoAlpacaParaApex';
 	import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
 	import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
+	import { funcaoOperacoes } from '$lib/apex/funcaoOperacoes';
+	import { funcaoPossiveisCompras } from '$lib/apex/funcaoPossiveisCompras';
+	import { funcaoPossiveisVendas } from '$lib/apex/funcaoPossiveisVendas';
+	import { funcaoTrades } from '$lib/apex/funcaoTrades';
 	import type { typeLinha } from '$lib/apex/typeLinha';
+	import type { typeTrade } from '$lib/apex/typeTrade';
 	import type { typeVela } from '$lib/apex/typeVela';
 	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
 
@@ -25,6 +30,7 @@
 	let velas = $state<typeVela[]>();
 	let mediasmoveis = $state<typeLinha[]>([]);
 	let rsi = $state<typeLinha[]>([]);
+	let trades = $state<typeTrade[]>([]);
 
 	function funcaoCalcularMediasMoveis() {
 		if (velas === undefined) return;
@@ -68,6 +74,18 @@
 		};
 	}
 
+	function funcaoCalcularTrades() {
+		if (velas === undefined) return;
+		const rsiSomentePontos = rsi.map((corrente) => corrente.dados);
+		const possiveisCompras = funcaoPossiveisCompras(velas, rsiSomentePontos);
+		const possiveisVendas = funcaoPossiveisVendas(velas, rsiSomentePontos);
+		const operacoes = funcaoOperacoes(possiveisCompras, possiveisVendas);
+		const ultimoFechamento = velas[velas.length - 1].y[3];
+		trades = [];
+		trades = funcaoTrades(operacoes, ultimoFechamento);
+		console.log($state.snapshot(trades));
+	}
+
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
 			periodo,
@@ -79,6 +97,7 @@
 		velas = arrayVelasApex;
 		funcaoCalcularMediasMoveis();
 		funcaoCalcularRsi();
+		funcaoCalcularTrades();
 	}
 
 	let minuto = $derived(agora.getMinutes());
@@ -110,14 +129,14 @@
 </script>
 
 <div class="rounded-3xl border-2 p-2">
-	<div>
+	<div class="text-center font-bold">
 		{simbolo} ({periodo})
 	</div>
 
 	{#await funcaoPreencherVelas()}
 		<div>CARREGANDO...</div>
 	{:then}
-		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} />
+		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} />
 		<Linhas linhas={rsi} />
 	{/await}
 </div>

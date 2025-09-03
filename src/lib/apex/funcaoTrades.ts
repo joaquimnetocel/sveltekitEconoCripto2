@@ -3,7 +3,7 @@ import type { typeTrade } from '$lib/apex/typeTrade';
 
 export const funcaoTrades = function (
 	operacoes: typeOperacao[],
-	parLastPrice: number,
+	ultimoFechamento: number,
 ): typeTrade[] {
 	let dateBuy: Date;
 	let numberBuyPrice: number;
@@ -19,14 +19,14 @@ export const funcaoTrades = function (
 		if (currentTrade.tipo === 'enumComprar' && currentTrade.ponto.y !== null) {
 			if (numberCounter === operacoes.length - 1) {
 				arrayTradeResults.push({
-					dateBuy: currentTrade.ponto.x,
-					numberBuyPrice: numberBuyPrice,
-					dateSell: currentTrade.ponto.x,
-					numberSellPrice: currentTrade.ponto.y,
-					numberProfit: 0,
-					enumGainOrLoss: 'enumNotFinished',
-					numberProfitFactor: 1,
-					numberDuration: 0,
+					dataDaCompra: currentTrade.ponto.x,
+					precoDeCompra: numberBuyPrice,
+					dataDaVenda: currentTrade.ponto.x,
+					precoDeVenda: currentTrade.ponto.y,
+					lucro: 0,
+					enumGanhoOuPerda: 'enumNaoRealizado',
+					fatorDeLucro: 1,
+					duracao: 0,
 				});
 			}
 			dateBuy = currentTrade.ponto.x;
@@ -37,27 +37,27 @@ export const funcaoTrades = function (
 		if (currentTrade.tipo === 'enumVender' && currentTrade.ponto.y !== null) {
 			const numberProfit = currentTrade.ponto.y - numberBuyPrice;
 			arrayTradeResults.push({
-				dateBuy: dateBuy,
-				numberBuyPrice: numberBuyPrice,
-				dateSell: currentTrade.ponto.x,
-				numberSellPrice: currentTrade.ponto.y,
-				numberProfit: numberProfit,
-				enumGainOrLoss: numberProfit > 0 ? 'enumGain' : 'enumLoss',
-				numberProfitFactor: currentTrade.ponto.y / numberBuyPrice,
-				numberDuration: numberCounter - numberBuyCounter,
+				dataDaCompra: dateBuy,
+				precoDeCompra: numberBuyPrice,
+				dataDaVenda: currentTrade.ponto.x,
+				precoDeVenda: currentTrade.ponto.y,
+				lucro: numberProfit,
+				enumGanhoOuPerda: numberProfit > 0 ? 'enumGanho' : 'enumPerda',
+				fatorDeLucro: currentTrade.ponto.y / numberBuyPrice,
+				duracao: numberCounter - numberBuyCounter,
 			});
 		}
 		if (currentTrade.tipo === 'enumAguardar') {
-			const numberProfit = parLastPrice - numberBuyPrice;
+			const numberProfit = ultimoFechamento - numberBuyPrice;
 			arrayTradeResults.push({
-				dateBuy: dateBuy,
-				numberBuyPrice: numberBuyPrice,
-				dateSell: currentTrade.ponto.x,
-				numberSellPrice: parLastPrice,
-				numberProfit: numberProfit,
-				enumGainOrLoss: 'enumNotFinished',
-				numberProfitFactor: parLastPrice / numberBuyPrice,
-				numberDuration: numberCounter - numberBuyCounter,
+				dataDaCompra: dateBuy,
+				precoDeCompra: numberBuyPrice,
+				dataDaVenda: currentTrade.ponto.x,
+				precoDeVenda: ultimoFechamento,
+				lucro: numberProfit,
+				enumGanhoOuPerda: 'enumNaoRealizado',
+				fatorDeLucro: ultimoFechamento / numberBuyPrice,
+				duracao: numberCounter - numberBuyCounter,
 			});
 		}
 	});

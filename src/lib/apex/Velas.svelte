@@ -1,19 +1,26 @@
 <script lang="ts">
 	import type { typeLinha } from '$lib/apex/typeLinha';
 	import type { typeVela } from '$lib/apex/typeVela';
+	import { colors } from '$lib/colors';
 	import type ApexCharts from 'apexcharts';
 	import { untrack } from 'svelte';
+	import type { typeTrade } from './typeTrade';
 
 	let {
 		velas,
 		linhas = [],
+		trades = [],
 	}: {
 		velas: typeVela[];
 		linhas?: typeLinha[];
+		trades?: typeTrade[];
 	} = $props();
 
 	let elemento = $state<HTMLDivElement>();
 	let grafico = $state<ApexCharts>();
+	let lucro = $derived(
+		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
+	);
 
 	const opcoes: ApexCharts.ApexOptions = {
 		series: [],
@@ -40,6 +47,11 @@
 		yaxis: {
 			tooltip: {
 				enabled: true,
+			},
+			labels: {
+				formatter: function (value) {
+					return value.toFixed(2);
+				},
 			},
 		},
 	};
@@ -76,6 +88,52 @@
 			grafico.updateSeries(arraySeries);
 		}
 	});
+
+	$effect(() => {
+		if (trades !== undefined) {
+			type typeApexAnnotations = Exclude<ApexCharts.ApexOptions['annotations'], undefined>;
+			type typeApexXaxis = Exclude<typeApexAnnotations['xaxis'], undefined>;
+			const stringGreenColor = colors.green;
+			const stringRedColor = colors.red;
+			const stringYellowColor = colors.yellow;
+			const stringBlackColor = colors.black;
+			const stringWhiteColor = colors.white;
+			trades.forEach((tradeCorrente) => {
+				const stringColor =
+					tradeCorrente.enumGanhoOuPerda === 'enumGanho'
+						? stringGreenColor
+						: tradeCorrente.enumGanhoOuPerda === 'enumPerda'
+							? stringRedColor
+							: stringYellowColor;
+				const objectXAxisAnnotation: typeApexXaxis[number] = {
+					x: tradeCorrente.dataDaCompra.getTime().toString(),
+					x2: tradeCorrente.dataDaVenda.getTime().toString(),
+					fillColor: stringColor,
+					opacity: 0.4,
+					label: {
+						borderColor: stringColor,
+						style: {
+							fontSize: '10px',
+							color: stringColor === stringRedColor ? stringWhiteColor : stringBlackColor,
+							background: stringColor,
+						},
+						offsetY: -10,
+						text: `${tradeCorrente.duracao} (${tradeCorrente.fatorDeLucro > 1 ? ((tradeCorrente.fatorDeLucro - 1) * 100).toFixed(2) : ((tradeCorrente.fatorDeLucro - 1) * 100).toFixed(2)})`,
+					},
+				};
+				if (grafico) {
+					grafico.clearAnnotations();
+					grafico.addXaxisAnnotation(objectXAxisAnnotation);
+				}
+			});
+		}
+	});
 </script>
+
+<div class="text-center">
+	<span class="font-extrabold" class:text-green-500={lucro > 1} class:text-red-500={lucro < 1}
+		>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(5)}%</span
+	>
+</div>
 
 <div bind:this={elemento} style="width:100%;"></div>
