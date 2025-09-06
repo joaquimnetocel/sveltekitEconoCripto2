@@ -16,11 +16,24 @@ export function funcaoCriarMediaMovel({
 		valores: fechamentos,
 	});
 
-	const velasnaoqueimadas = velas.slice(periodo - 1);
-	return velasnaoqueimadas.map((current, i) => {
+	// const velasnaoqueimadas = velas.slice(periodo - 1);
+	// return velasnaoqueimadas.map((current, i) => {
+	// 	return {
+	// 		x: current.x,
+	// 		y: mediasmoveis[i],
+	// 	};
+	// });
+
+	return velas.map((current, i) => {
+		if (i < periodo - 1) {
+			return {
+				x: current.x,
+				y: null,
+			};
+		}
 		return {
 			x: current.x,
-			y: mediasmoveis[i],
+			y: mediasmoveis[i - periodo + 1],
 		};
 	});
 }

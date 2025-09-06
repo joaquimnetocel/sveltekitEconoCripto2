@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { typeDado } from '$lib/alpaca/typeDado';
 	import type { typePeriodo } from '$lib/alpaca/typePeriodo';
-	import Linhas from '$lib/apex/Linhas.svelte';
+	// import Linhas from '$lib/apex/Linhas.svelte';
 	import Velas from '$lib/apex/Velas.svelte';
 	import { funcaoAlpacaParaApex } from '$lib/apex/funcaoAlpacaParaApex';
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
@@ -28,17 +28,22 @@
 	let mediasmoveis = $state<typeLinha[]>([]);
 	let rsi = $state<typeLinha[]>([]);
 	let trades = $state<typeTrade[]>([]);
+	let exibirGrafico = $state(false);
+
+	// let svelas = $state<typeVela[]>();
+	// let smediasmoveis = $state<typeLinha[]>([]);
+	// let srsi = $state<typeLinha[]>([]);
 
 	function funcaoCalcularMediasMoveis() {
 		if (velas === undefined) return;
 		mediasmoveis[0] = {
 			opcoes: {
-				descricao: 'MÉDIA MÓVEL SIMPLES (5)',
+				descricao: 'MÉDIA MÓVEL SIMPLES (100)',
 				cor: 'blue',
 			},
 			dados: funcaoCriarMediaMovel({
 				velas,
-				periodo: 5,
+				periodo: 100,
 			}),
 		};
 		mediasmoveis[1] = {
@@ -82,12 +87,13 @@
 		velas = arrayVelasApex;
 		funcaoCalcularMediasMoveis();
 		funcaoCalcularRsi();
+
 		const pontosRsi = rsi.map((corrente) => corrente.dados);
 		const pontosMediasMoveis = mediasmoveis.map((corrente) => corrente.dados);
-		const pontos = [...pontosRsi, ...pontosMediasMoveis];
+		const linhas = [...pontosMediasMoveis, ...pontosRsi];
 		trades = funcaoCalcularTrades({
 			velas,
-			pontos,
+			linhas,
 		});
 		// console.log($state.snapshot(trades));
 	}
@@ -128,7 +134,16 @@
 	{#await funcaoPreencherVelas()}
 		<div>CARREGANDO...</div>
 	{:then}
-		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} />
-		<Linhas linhas={rsi} />
+		<div class="text-center">
+			<button class="classButton" onclick={() => (exibirGrafico = !exibirGrafico)}>
+				{#if exibirGrafico}
+					OCULTAR GRÁFICO
+				{:else}
+					EXIBIR GRÁFICO
+				{/if}
+			</button>
+		</div>
+		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} {exibirGrafico} />
+		<!-- <Linhas 	linhas={rsi} /> -->
 	{/await}
 </div>

@@ -13,7 +13,7 @@
 		quantidade: number;
 	} = $props();
 
-	let quantidade_digitada = $state(30);
+	let quantidade_digitada = $state(quantidade);
 	let enter_pressionado = $state(false);
 
 	function funcaoQuantidadeAlterada() {
