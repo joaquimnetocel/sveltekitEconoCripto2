@@ -98,6 +98,9 @@
 			const stringYellowColor = colors.yellow;
 			const stringBlackColor = colors.black;
 			const stringWhiteColor = colors.white;
+			if (grafico) {
+				grafico.clearAnnotations();
+			}
 			trades.forEach((tradeCorrente) => {
 				const stringColor =
 					tradeCorrente.enumGanhoOuPerda === 'enumGanho'
@@ -122,7 +125,6 @@
 					},
 				};
 				if (grafico) {
-					grafico.clearAnnotations();
 					grafico.addXaxisAnnotation(objectXAxisAnnotation);
 				}
 			});

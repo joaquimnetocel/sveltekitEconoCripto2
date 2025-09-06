@@ -4,12 +4,9 @@
 	import Linhas from '$lib/apex/Linhas.svelte';
 	import Velas from '$lib/apex/Velas.svelte';
 	import { funcaoAlpacaParaApex } from '$lib/apex/funcaoAlpacaParaApex';
+	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
 	import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
 	import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
-	import { funcaoOperacoes } from '$lib/apex/funcaoOperacoes';
-	import { funcaoPossiveisCompras } from '$lib/apex/funcaoPossiveisCompras';
-	import { funcaoPossiveisVendas } from '$lib/apex/funcaoPossiveisVendas';
-	import { funcaoTrades } from '$lib/apex/funcaoTrades';
 	import type { typeLinha } from '$lib/apex/typeLinha';
 	import type { typeTrade } from '$lib/apex/typeTrade';
 	import type { typeVela } from '$lib/apex/typeVela';
@@ -74,18 +71,6 @@
 		};
 	}
 
-	function funcaoCalcularTrades() {
-		if (velas === undefined) return;
-		const rsiSomentePontos = rsi.map((corrente) => corrente.dados);
-		const possiveisCompras = funcaoPossiveisCompras(velas, rsiSomentePontos);
-		const possiveisVendas = funcaoPossiveisVendas(velas, rsiSomentePontos);
-		const operacoes = funcaoOperacoes(possiveisCompras, possiveisVendas);
-		const ultimoFechamento = velas[velas.length - 1].y[3];
-		trades = [];
-		trades = funcaoTrades(operacoes, ultimoFechamento);
-		console.log($state.snapshot(trades));
-	}
-
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
 			periodo,
@@ -97,7 +82,14 @@
 		velas = arrayVelasApex;
 		funcaoCalcularMediasMoveis();
 		funcaoCalcularRsi();
-		funcaoCalcularTrades();
+		const pontosRsi = rsi.map((corrente) => corrente.dados);
+		const pontosMediasMoveis = mediasmoveis.map((corrente) => corrente.dados);
+		const pontos = [...pontosRsi, ...pontosMediasMoveis];
+		trades = funcaoCalcularTrades({
+			velas,
+			pontos,
+		});
+		// console.log($state.snapshot(trades));
 	}
 
 	let minuto = $derived(agora.getMinutes());
