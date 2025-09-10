@@ -25,6 +25,17 @@
 		<li>
 			APLICAÇÕES
 			<ul class="ml-4 list-inside list-disc">
+				<li>KUCOIN</li>
+				<ul class="ml-4 list-inside list-disc">
+					<li>
+						<a href="/aplicacoes/kucoin/apex" class="text-blue-500 underline">GRÁFICO DE VELAS</a>
+					</li>
+					<li>
+						<a href="/aplicacoes/kucoin/simbolos" class="text-blue-500 underline"
+							>LISTA DE SÍMBOLOS</a
+						>
+					</li>
+				</ul>
 				<li>APEX</li>
 				<ul class="ml-4 list-inside list-disc">
 					<li>

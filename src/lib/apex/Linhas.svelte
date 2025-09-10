@@ -5,8 +5,10 @@
 
 	let {
 		linhas = [],
+		exibir = true,
 	}: {
 		linhas?: typeLinha[];
+		exibir?: boolean;
 	} = $props();
 
 	let elemento = $state<HTMLDivElement>();
@@ -43,11 +45,14 @@
 
 	async function funcaoAsyncEffect() {
 		const apex = await import('apexcharts');
-		grafico = new apex.default(elemento, opcoes);
-		grafico.render();
+		if (exibir) {
+			grafico = new apex.default(elemento, opcoes);
+			grafico.render();
+		}
 	}
 
 	$effect(() => {
+		void exibir;
 		untrack(() => {
 			funcaoAsyncEffect();
 		});
@@ -70,4 +75,6 @@
 	});
 </script>
 
-<div bind:this={elemento} style="width:100%;"></div>
+{#if exibir}
+	<div bind:this={elemento} style="width:100%;"></div>
+{/if}

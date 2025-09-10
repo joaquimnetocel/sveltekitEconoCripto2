@@ -10,12 +10,12 @@
 		velas,
 		linhas = [],
 		trades = [],
-		exibirGrafico = true,
+		exibir = true,
 	}: {
 		velas: typeVela[];
 		linhas?: typeLinha[];
 		trades?: typeTrade[];
-		exibirGrafico?: boolean;
+		exibir?: boolean;
 	} = $props();
 
 	let elemento = $state<HTMLDivElement>();
@@ -63,14 +63,14 @@
 
 	async function funcaoAsyncEffect() {
 		const apex = await import('apexcharts');
-		if (exibirGrafico) {
+		if (exibir) {
 			grafico = new apex.default(elemento, opcoes);
 			grafico.render();
 		}
 	}
 
 	$effect(() => {
-		void exibirGrafico;
+		void exibir;
 		untrack(() => {
 			funcaoAsyncEffect();
 		});
@@ -145,6 +145,6 @@
 		>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(5)}%</span
 	>
 </div>
-{#if exibirGrafico}
+{#if exibir}
 	<div bind:this={elemento} style="width:100%;"></div>
 {/if}

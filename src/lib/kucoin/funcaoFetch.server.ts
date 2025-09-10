@@ -1,35 +1,25 @@
-function intervaloEmSegundos(intervalo: string) {
-	const n = parseInt(intervalo);
-	if (intervalo.endsWith('min')) return n * 60;
-	if (intervalo.endsWith('hour')) return n * 3600;
-	if (intervalo.endsWith('day')) return n * 86400;
-	if (intervalo.endsWith('week')) return n * 604800;
-	if (intervalo.endsWith('month')) return n * 2592000; // aproximado
+import type { typePeriodo } from '$lib/kucoin/typePeriodo';
+import type { typeSimbolo } from '$lib/kucoin/typeSimbolo';
+
+function intervaloEmSegundos(periodo: string) {
+	const n = parseInt(periodo);
+	if (periodo.endsWith('min')) return n * 60;
+	if (periodo.endsWith('hour')) return n * 3600;
+	if (periodo.endsWith('day')) return n * 86400;
+	if (periodo.endsWith('week')) return n * 604800;
+	if (periodo.endsWith('month')) return n * 2592000; // aproximado
 	throw new Error('Intervalo desconhecido');
 }
 
 export async function funcaoFetch({
 	simbolo,
-	intervalo,
+	periodo,
 	quantidade,
 	fetch,
 }: {
 	fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-	simbolo: string;
-	intervalo:
-		| '3min'
-		| '5min'
-		| '15min'
-		| '30min'
-		| '1hour'
-		| '2hour'
-		| '4hour'
-		| '6hour'
-		| '8hour'
-		| '12hour'
-		| '1day'
-		| '1week'
-		| '1month';
+	simbolo: typeSimbolo;
+	periodo: typePeriodo;
 	quantidade: number;
 }) {
 	const velas = [];
@@ -42,21 +32,20 @@ export async function funcaoFetch({
 
 	while (restantes > 0) {
 		const limit = Math.min(restantes, MAXIMO_POR_REQUISICAO);
-		const startAt = endAt - limit * intervaloEmSegundos(intervalo);
+		const startAt = endAt - limit * intervaloEmSegundos(periodo);
 
-		const url = `https://api.kucoin.com/api/v1/market/candles?symbol=${symbol}&type=${interval}&startAt=${startAt}&endAt=${endAt}`;
-
+		const url = `https://api.kucoin.com/api/v1/market/candles?symbol=${simbolo}&type=${periodo}&startAt=${startAt}&endAt=${endAt}`;
 		const res = await fetch(url);
 		const data = await res.json();
 
 		if (!data.data || data.data.length === 0) break;
 
-		velas.unshift(...data.data); // adiciona no início para manter a ordem cronológica
+		velas.push(...data.data); // mantém a ordem cronológica
 		restantes -= data.data.length;
-		endAt = startAt - 1; // ajusta o próximo intervalo
+		endAt = startAt; // sem lacunas
 	}
 
-	return velas;
+	return velas.reverse(); // já está em ordem cronológica
 }
 
 // // Exemplo de uso:
