@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { criterios } from '$lib/apex/criterios/criterioDoCara';
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
-	import Linhas from '$lib/apex/Linhas.svelte';
-	import type { typeLinha } from '$lib/apex/typeLinha';
+	// import Linhas from '$lib/apex/Linhas.svelte';
 	import type { typeTrade } from '$lib/apex/typeTrade';
 	import type { typeVela } from '$lib/apex/typeVela';
 	import Velas from '$lib/apex/Velas.svelte';
 	import { funcaoKucoinParaApex } from '$lib/conversoes/funcaoKucoinParaApex';
 	import type { typePeriodo } from '$lib/kucoin/typePeriodo';
 	import type { typeSimbolo } from '$lib/kucoin/typeSimbolo';
-	import { estados } from './estados';
+	import { estados } from './estados.svelte';
 	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
 
 	let {
@@ -25,9 +24,6 @@
 	} = $props();
 
 	let velas = $state<typeVela[]>();
-	let mediasmoveis = $state<typeLinha[]>([]);
-	let rsi = $state<typeLinha[]>([]);
-	let estocastico = $state<typeLinha[]>([]);
 	let trades = $state<typeTrade[]>([]);
 	let exibirVelas = $state(false);
 	let exibirLinhas = $state(false);
@@ -47,27 +43,23 @@
 
 		velas = arrayVelasApex;
 
-		estados.mediaMovel({
-			estado: mediasmoveis,
+		estados.funcaoHighest({
 			velas,
-			periodo: [80, 50],
-			cores: ['blue', 'red'],
+			periodo: [20],
+			cores: ['green'],
 		});
-		estados.rsi({
-			estado: rsi,
+		estados.funcaoLowest({
 			velas,
-			periodo: [80, 50],
-			cores: ['blue', 'red'],
-		});
-		estados.estocastico({
-			estado: estocastico,
-			velas,
+			periodo: [10],
+			cores: ['purple'],
 		});
 
-		const pontosRsi = rsi.map((corrente) => corrente.dados);
-		const pontosMediasMoveis = mediasmoveis.map((corrente) => corrente.dados);
-		const pontosEstocastico = estocastico.map((corrente) => corrente.dados);
-		const linhas = [...pontosMediasMoveis, ...pontosEstocastico, ...pontosRsi];
+		// const pontosRsi = estados.rsi.map((corrente) => corrente.dados);
+		// const pontosMediasMoveis = estados.mediasmoveis.map((corrente) => corrente.dados);
+		// const pontosEstocastico = estados.estocastico.map((corrente) => corrente.dados);
+		const pontosHighest = estados.highest.map((corrente) => corrente.dados);
+		const pontosLowest = estados.lowest.map((corrente) => corrente.dados);
+		const linhas = [...pontosHighest, ...pontosLowest];
 		trades = funcaoCalcularTrades({
 			velas,
 			linhas,
@@ -128,7 +120,12 @@
 				{/if}
 			</button>
 		</div>
-		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} exibir={exibirVelas} />
+		<Velas
+			velas={velas as typeVela[]}
+			linhas={[...estados.highest, ...estados.lowest]}
+			{trades}
+			exibir={exibirVelas}
+		/>
 		<div class="text-center">
 			<span class="font-extrabold" class:text-green-500={lucro > 1} class:text-red-500={lucro < 1}
 				>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(2)}%</span
@@ -139,11 +136,10 @@
 				EM ANDAMENTO HÁ {trades[trades.length - 1].duracao} PERÍODOS
 			</div>
 		{/if}
-		<div class="text-center">
-			RSI 1: {rsi[0].dados[rsi[0].dados.length - 1].y} / RSI 2: {rsi[1].dados[
-				rsi[1].dados.length - 1
-			].y}
-		</div>
-		<Linhas linhas={rsi} exibir={exibirLinhas} />
+		<!-- <div class="text-center">
+			RSI 1: {estados.rsi[0].dados[estados.rsi[0].dados.length - 1].y} / RSI 2: {estados.rsi[1]
+				.dados[estados.rsi[1].dados.length - 1].y}
+		</div> -->
+		<!-- <Linhas linhas={estados.rsi} exibir={exibirLinhas} /> -->
 	{/await}
 </div>

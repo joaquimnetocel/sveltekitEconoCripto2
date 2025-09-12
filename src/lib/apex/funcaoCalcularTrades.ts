@@ -15,8 +15,10 @@ export function funcaoCalcularTrades({
 	funcaoStop?: typeFuncaoStop;
 }) {
 	if (velas === undefined) throw Error;
+	const aa = criterios.compras(velas, linhas);
+	console.log(aa.map((ca) => ca.y));
 	const operacoes = funcaoOperacoes({
-		pontosDeCompra: criterios.compras(velas, linhas),
+		pontosDeCompra: aa,
 		pontosDeVenda: criterios.vendas(velas, linhas),
 		velas,
 		funcaoStop,
