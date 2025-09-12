@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
+	import { funcaoCriarEstocasticoLento } from '$lib/apex/funcaoCriarEstocasticoLento';
 	import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
 	import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
 	import Linhas from '$lib/apex/Linhas.svelte';
@@ -27,29 +28,34 @@
 	let velas = $state<typeVela[]>();
 	let mediasmoveis = $state<typeLinha[]>([]);
 	let rsi = $state<typeLinha[]>([]);
+	let estocastico = $state<typeLinha[]>([]);
 	let trades = $state<typeTrade[]>([]);
 	let exibirVelas = $state(false);
 	let exibirLinhas = $state(false);
+
+	let lucro = $derived(
+		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
+	);
 
 	function funcaoCalcularMediasMoveis() {
 		if (velas === undefined) return;
 		mediasmoveis[0] = {
 			opcoes: {
-				descricao: 'MÉDIA MÓVEL SIMPLES (100)',
+				descricao: 'MÉDIA MÓVEL SIMPLES (80)',
 				cor: 'blue',
 			},
 			dados: funcaoCriarMediaMovel({
 				velas,
-				periodo: 100,
+				periodo: 80,
 			}),
 		};
-		mediasmoveis[1] = {
-			opcoes: {
-				descricao: 'MÉDIA MÓVEL SIMPLES (10)',
-				cor: 'red',
-			},
-			dados: funcaoCriarMediaMovel({ velas, periodo: 10 }),
-		};
+		// mediasmoveis[1] = {
+		// 	opcoes: {
+		// 		descricao: 'MÉDIA MÓVEL SIMPLES (10)',
+		// 		cor: 'red',
+		// 	},
+		// 	dados: funcaoCriarMediaMovel({ velas, periodo: 10 }),
+		// };
 	}
 
 	function funcaoCalcularRsi() {
@@ -57,11 +63,11 @@
 		rsi[0] = {
 			opcoes: {
 				cor: 'blue',
-				descricao: 'RSI (5)',
+				descricao: 'RSI (14)',
 			},
 			dados: funcaoCriarRsi({
 				velas,
-				periodo: 5,
+				periodo: 14,
 			}),
 		};
 		rsi[1] = {
@@ -70,6 +76,20 @@
 				descricao: 'RSI (10)',
 			},
 			dados: funcaoCriarRsi({ velas, periodo: 10 }),
+		};
+	}
+
+	function funcaoCalcularEstocastico() {
+		if (velas === undefined) return;
+		const k = funcaoCriarEstocasticoLento({
+			velas,
+		});
+		estocastico[0] = {
+			opcoes: {
+				cor: 'blue',
+				descricao: 'ESTOCÁSTICO',
+			},
+			dados: k,
 		};
 	}
 
@@ -85,10 +105,12 @@
 		velas = arrayVelasApex;
 		funcaoCalcularMediasMoveis();
 		funcaoCalcularRsi();
+		funcaoCalcularEstocastico();
 
 		const pontosRsi = rsi.map((corrente) => corrente.dados);
 		const pontosMediasMoveis = mediasmoveis.map((corrente) => corrente.dados);
-		const linhas = [...pontosMediasMoveis, ...pontosRsi];
+		const pontosEstocastico = estocastico.map((corrente) => corrente.dados);
+		const linhas = [...pontosMediasMoveis, ...pontosEstocastico, ...pontosRsi];
 		trades = funcaoCalcularTrades({
 			velas,
 			linhas,
@@ -149,6 +171,21 @@
 			</button>
 		</div>
 		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} exibir={exibirVelas} />
+		<div class="text-center">
+			<span class="font-extrabold" class:text-green-500={lucro > 1} class:text-red-500={lucro < 1}
+				>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(2)}%</span
+			>
+		</div>
+		{#if trades[trades.length - 1].enumGanhoOuPerda === 'enumNaoRealizado'}
+			<div class="text-center font-bold text-yellow-500">
+				EM ANDAMENTO HÁ {trades[trades.length - 1].duracao} PERÍODOS
+			</div>
+		{/if}
+		<div class="text-center">
+			RSI 1: {rsi[0].dados[rsi[0].dados.length - 1].y} / RSI 2: {rsi[1].dados[
+				rsi[1].dados.length - 1
+			].y}
+		</div>
 		<Linhas linhas={rsi} exibir={exibirLinhas} />
 	{/await}
 </div>

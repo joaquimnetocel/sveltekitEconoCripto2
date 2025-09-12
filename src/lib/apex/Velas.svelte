@@ -20,9 +20,6 @@
 
 	let elemento = $state<HTMLDivElement>();
 	let grafico = $state<ApexCharts>();
-	let lucro = $derived(
-		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
-	);
 
 	const opcoes: ApexCharts.ApexOptions = {
 		series: [],
@@ -140,11 +137,6 @@
 	});
 </script>
 
-<div class="text-center">
-	<span class="font-extrabold" class:text-green-500={lucro > 1} class:text-red-500={lucro < 1}
-		>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(5)}%</span
-	>
-</div>
 {#if exibir}
 	<div bind:this={elemento} style="width:100%;"></div>
 {/if}

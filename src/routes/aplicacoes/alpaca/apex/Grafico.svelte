@@ -143,7 +143,7 @@
 				{/if}
 			</button>
 		</div>
-		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} {exibirGrafico} />
+		<Velas velas={velas as typeVela[]} linhas={mediasmoveis} {trades} exibir={exibirGrafico} />
 		<!-- <Linhas 	linhas={rsi} /> -->
 	{/await}
 </div>

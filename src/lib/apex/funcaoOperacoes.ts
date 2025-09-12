@@ -16,6 +16,16 @@ export const funcaoOperacoes = function (
 			tipo: 'enumNaoOperar',
 		};
 		if (pontoDeCompraCorrente.y === null && pontodeVendaCorrente.y === null) {
+			if (contador === pontosDeCompra.length - 1) {
+				return {
+					tipo: 'enumAguardar',
+					ponto: {
+						x: pontoDeCompraCorrente.x,
+						y: null,
+					},
+				};
+			}
+
 			return objetoNaoOperar;
 		}
 		if (pesquisandoPor === 'enumCompra') {

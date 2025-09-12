@@ -13,7 +13,7 @@
 	let simbolo = $state<typeSimbolo>('BTC-USDT');
 	let periodo = $state<typePeriodo>('1day');
 	let agora = $state<Date>();
-	let quantidade = $state(10);
+	let quantidade = $state(600);
 </script>
 
 <div class="p-5">
@@ -31,9 +31,9 @@
 	/>
 	<div>
 		{#if agora}
-			<!-- {#each simbolos as simbolo, i (i)} -->
-			<!-- <Grafico {simbolo} {periodo} {agora} {quantidade} /> -->
-			<!-- {/each} -->
+			<!-- {#each simbolos.slice(0, 100) as simbolo, i (i)}
+				<Grafico {simbolo} {periodo} {agora} {quantidade} />
+			{/each} -->
 			<Grafico {simbolo} {periodo} {agora} {quantidade} />
 		{/if}
 	</div>

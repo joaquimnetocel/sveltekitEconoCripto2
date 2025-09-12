@@ -1,4 +1,4 @@
-import { criterios } from './criterios/criterioMediaMovel120';
+import { criterios } from './criterios/criterioEstocastico';
 import { funcaoOperacoes } from './funcaoOperacoes';
 import { funcaoTrades } from './funcaoTrades';
 import type { typePonto } from './typePonto';

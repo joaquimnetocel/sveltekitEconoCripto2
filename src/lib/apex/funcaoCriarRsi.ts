@@ -16,7 +16,7 @@ export function funcaoCriarRsi({
 		valores: fechamentos,
 	});
 
-	const aa = velas.map((current, i) => {
+	return velas.map((current, i) => {
 		if (i < periodo) {
 			return {
 				x: current.x,
@@ -28,5 +28,4 @@ export function funcaoCriarRsi({
 			y: rsi[i - periodo],
 		};
 	});
-	return aa;
 }
