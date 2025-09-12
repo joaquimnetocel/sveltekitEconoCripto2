@@ -1,8 +1,6 @@
 <script lang="ts">
+	import { criterios } from '$lib/apex/criterios/criterioDoCara';
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
-	import { funcaoCriarEstocasticoLento } from '$lib/apex/funcaoCriarEstocasticoLento';
-	import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
-	import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
 	import Linhas from '$lib/apex/Linhas.svelte';
 	import type { typeLinha } from '$lib/apex/typeLinha';
 	import type { typeTrade } from '$lib/apex/typeTrade';
@@ -11,6 +9,7 @@
 	import { funcaoKucoinParaApex } from '$lib/conversoes/funcaoKucoinParaApex';
 	import type { typePeriodo } from '$lib/kucoin/typePeriodo';
 	import type { typeSimbolo } from '$lib/kucoin/typeSimbolo';
+	import { estados } from './estados';
 	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
 
 	let {
@@ -37,62 +36,6 @@
 		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
 	);
 
-	function funcaoCalcularMediasMoveis() {
-		if (velas === undefined) return;
-		mediasmoveis[0] = {
-			opcoes: {
-				descricao: 'MÉDIA MÓVEL SIMPLES (80)',
-				cor: 'blue',
-			},
-			dados: funcaoCriarMediaMovel({
-				velas,
-				periodo: 80,
-			}),
-		};
-		// mediasmoveis[1] = {
-		// 	opcoes: {
-		// 		descricao: 'MÉDIA MÓVEL SIMPLES (10)',
-		// 		cor: 'red',
-		// 	},
-		// 	dados: funcaoCriarMediaMovel({ velas, periodo: 10 }),
-		// };
-	}
-
-	function funcaoCalcularRsi() {
-		if (velas === undefined) return;
-		rsi[0] = {
-			opcoes: {
-				cor: 'blue',
-				descricao: 'RSI (14)',
-			},
-			dados: funcaoCriarRsi({
-				velas,
-				periodo: 14,
-			}),
-		};
-		rsi[1] = {
-			opcoes: {
-				cor: 'red',
-				descricao: 'RSI (10)',
-			},
-			dados: funcaoCriarRsi({ velas, periodo: 10 }),
-		};
-	}
-
-	function funcaoCalcularEstocastico() {
-		if (velas === undefined) return;
-		const k = funcaoCriarEstocasticoLento({
-			velas,
-		});
-		estocastico[0] = {
-			opcoes: {
-				cor: 'blue',
-				descricao: 'ESTOCÁSTICO',
-			},
-			dados: k,
-		};
-	}
-
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
 			periodo,
@@ -103,9 +46,23 @@
 		const arrayVelasApex = await funcaoKucoinParaApex(arrayDadosAlpaca);
 
 		velas = arrayVelasApex;
-		funcaoCalcularMediasMoveis();
-		funcaoCalcularRsi();
-		funcaoCalcularEstocastico();
+
+		estados.mediaMovel({
+			estado: mediasmoveis,
+			velas,
+			periodo: [80, 50],
+			cores: ['blue', 'red'],
+		});
+		estados.rsi({
+			estado: rsi,
+			velas,
+			periodo: [80, 50],
+			cores: ['blue', 'red'],
+		});
+		estados.estocastico({
+			estado: estocastico,
+			velas,
+		});
 
 		const pontosRsi = rsi.map((corrente) => corrente.dados);
 		const pontosMediasMoveis = mediasmoveis.map((corrente) => corrente.dados);
@@ -114,6 +71,7 @@
 		trades = funcaoCalcularTrades({
 			velas,
 			linhas,
+			funcaoStop: criterios.stop,
 		});
 		// console.log($state.snapshot(trades));
 	}
