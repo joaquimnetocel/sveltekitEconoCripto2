@@ -12,8 +12,7 @@ const stop: typeFuncaoStop = function ({ velas, agora }) {
 	});
 	const averageTrueRangeMedio = funcaoMedia(averageTrueRange);
 	// console.log(velas[agora].y[3] - 1 * averageTrueRangeMedio);
-	return velas[agora].y[3] - 1000 * averageTrueRangeMedio;
-	// return 1 * velas[agora].y[3];
+	return velas[agora].y[3] - 1.5 * averageTrueRangeMedio;
 };
 
 const compras = function (velas: typeVela[], linhas: typePonto[][]): typePonto[] {

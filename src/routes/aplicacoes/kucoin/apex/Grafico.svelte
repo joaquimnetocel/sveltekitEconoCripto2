@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
-	// import Linhas from '$lib/apex/Linhas.svelte';
+	import Linhas from '$lib/apex/Linhas.svelte';
 	import type { typeTrade } from '$lib/apex/typeTrade';
 	import type { typeVela } from '$lib/apex/typeVela';
 	import Velas from '$lib/apex/Velas.svelte';
@@ -27,11 +27,24 @@
 	let exibirVelas = $state(false);
 	let exibirLinhas = $state(false);
 
+	let lucroHolding = $state<number>(0);
+	let lucroHoldingDiario = $state<number>(0);
+	let lucroHoldingMensal = $state<number>(0);
+
+	// let lucro = $derived(
+	// 	trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
+	// );
+
+	let diasInvestido = $derived(
+		trades.reduce((acumulado, corrente) => acumulado + corrente.duracao, 0),
+	);
+
 	let lucro = $derived(
 		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
 	);
 
-	let lucroHolding = $state<number>(0);
+	let lucroDiario = $derived(Math.pow(lucro, 1 / diasInvestido));
+	let lucroMensal = $derived(Math.pow(lucroDiario, 30));
 
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
@@ -43,11 +56,15 @@
 		const arrayVelasApex = await funcaoKucoinParaApex(arrayDadosAlpaca);
 
 		velas = arrayVelasApex;
+
 		lucroHolding = velas[velas.length - 1].y[3] / velas[0].y[3];
-		estados.funcaoMediaMovel({
+		lucroHoldingDiario = Math.pow(lucroHolding, 1 / quantidade);
+		lucroHoldingMensal = Math.pow(lucroHoldingDiario, 30);
+
+		estados.funcaoMediaMovelExponencial({
 			velas,
-			periodo: [80],
-			cores: ['orange'],
+			periodo: [50, 7],
+			cores: ['pink', 'blue'],
 		});
 		estados.funcaoHighest({
 			velas,
@@ -58,6 +75,11 @@
 			velas,
 			periodo: [10],
 			cores: ['purple'],
+		});
+		estados.funcaoRsi({
+			velas,
+			periodo: [50],
+			cores: ['black'],
 		});
 
 		// const pontosRsi = estados.rsi.map((corrente) => corrente.dados);
@@ -127,7 +149,7 @@
 		</div>
 		<Velas
 			velas={velas as typeVela[]}
-			linhas={[...estados.highest, ...estados.lowest, ...estados.mediasmoveis]}
+			linhas={[...estados.mediasmoveisexponenciais]}
 			{trades}
 			exibir={exibirVelas}
 		/>
@@ -157,6 +179,8 @@
 			RSI 1: {estados.rsi[0].dados[estados.rsi[0].dados.length - 1].y} / RSI 2: {estados.rsi[1]
 				.dados[estados.rsi[1].dados.length - 1].y}
 		</div> -->
-		<!-- <Linhas linhas={estados.rsi} exibir={exibirLinhas} /> -->
+		<Linhas linhas={estados.rsi} exibir={exibirLinhas} />
 	{/await}
 </div>
+{lucroMensal}
+{lucroHoldingMensal}

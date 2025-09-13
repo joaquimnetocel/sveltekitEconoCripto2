@@ -2,11 +2,13 @@ import { funcaoCriarEstocasticoLento } from '$lib/apex/funcaoCriarEstocasticoLen
 import { funcaoCriarHighest } from '$lib/apex/funcaoCriarHighest';
 import { funcaoCriarLowest } from '$lib/apex/funcaoCriarLowest';
 import { funcaoCriarMediaMovel } from '$lib/apex/funcaoCriarMediaMovel';
+import { funcaoCriarMediaMovelExponencial } from '$lib/apex/funcaoCriarMediaMovelExponencial';
 import { funcaoCriarRsi } from '$lib/apex/funcaoCriarRsi';
 import type { typeLinha } from '$lib/apex/typeLinha';
 import type { typeVela } from '$lib/apex/typeVela';
 
 let mediasmoveis = $state<typeLinha[]>([]);
+let mediasmoveisexponenciais = $state<typeLinha[]>([]);
 let rsi = $state<typeLinha[]>([]);
 let estocastico = $state<typeLinha[]>([]);
 let lowest = $state<typeLinha[]>([]);
@@ -29,6 +31,30 @@ function funcaoMediaMovel({
 				cor: cores[contador],
 			},
 			dados: funcaoCriarMediaMovel({
+				velas,
+				periodo: periodo[contador],
+			}),
+		};
+	}
+}
+
+function funcaoMediaMovelExponencial({
+	velas,
+	periodo,
+	cores,
+}: {
+	velas: typeVela[];
+	periodo: number[];
+	cores: string[];
+}): void {
+	if (velas === undefined) return;
+	for (let contador = 0; contador < periodo.length; contador++) {
+		mediasmoveisexponenciais[contador] = {
+			opcoes: {
+				descricao: `MÉDIA MÓVEL EXPONENCIAL (${periodo[contador]})`,
+				cor: cores[contador],
+			},
+			dados: funcaoCriarMediaMovelExponencial({
 				velas,
 				periodo: periodo[contador],
 			}),
@@ -125,11 +151,14 @@ function funcaoEstocastico({ velas }: { velas: typeVela[] }) {
 
 export const estados = {
 	funcaoMediaMovel,
+	funcaoMediaMovelExponencial,
 	funcaoRsi,
 	funcaoEstocastico,
 	funcaoHighest,
 	funcaoLowest,
 	mediasmoveis,
+	mediasmoveisexponenciais,
+	funcaoCriarMediaMovelExponencial,
 	rsi,
 	estocastico,
 	highest,
