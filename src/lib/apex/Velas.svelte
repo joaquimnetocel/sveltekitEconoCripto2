@@ -26,7 +26,7 @@
 		chart: {
 			type: 'candlestick',
 			height: 350,
-			group: 'social',
+			// group: 'social', // PROMOVE A SINCRONIA COM OUTROS GRÁFICOS, MAS PERDE A CAPACIDADE DE DAR ZOOM
 			id: 'candles',
 		},
 		stroke: {

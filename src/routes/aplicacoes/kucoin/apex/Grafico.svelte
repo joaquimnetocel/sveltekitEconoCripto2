@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { criterios } from '$lib/apex/criterios/criterioDoCara';
 	import { funcaoCalcularTrades } from '$lib/apex/funcaoCalcularTrades';
 	// import Linhas from '$lib/apex/Linhas.svelte';
 	import type { typeTrade } from '$lib/apex/typeTrade';
@@ -32,6 +31,8 @@
 		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
 	);
 
+	let lucroHolding = $state<number>(0);
+
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
 			periodo,
@@ -42,7 +43,12 @@
 		const arrayVelasApex = await funcaoKucoinParaApex(arrayDadosAlpaca);
 
 		velas = arrayVelasApex;
-
+		lucroHolding = velas[velas.length - 1].y[3] / velas[0].y[3];
+		estados.funcaoMediaMovel({
+			velas,
+			periodo: [80],
+			cores: ['orange'],
+		});
 		estados.funcaoHighest({
 			velas,
 			periodo: [20],
@@ -63,7 +69,6 @@
 		trades = funcaoCalcularTrades({
 			velas,
 			linhas,
-			funcaoStop: criterios.stop,
 		});
 		// console.log($state.snapshot(trades));
 	}
@@ -122,7 +127,7 @@
 		</div>
 		<Velas
 			velas={velas as typeVela[]}
-			linhas={[...estados.highest, ...estados.lowest]}
+			linhas={[...estados.highest, ...estados.lowest, ...estados.mediasmoveis]}
 			{trades}
 			exibir={exibirVelas}
 		/>
@@ -131,6 +136,18 @@
 				>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(2)}%</span
 			>
 		</div>
+		<div class="text-center">
+			<span
+				class="font-extrabold"
+				class:text-green-500={lucroHolding > 1}
+				class:text-red-500={lucroHolding < 1}
+				>{lucroHolding > 1 ? 'LUCRO HOLDING' : 'PREJUÍZO HOLDING'}: {(
+					(lucroHolding - 1) *
+					100
+				).toFixed(2)}%</span
+			>
+		</div>
+
 		{#if trades[trades.length - 1].enumGanhoOuPerda === 'enumNaoRealizado'}
 			<div class="text-center font-bold text-yellow-500">
 				EM ANDAMENTO HÁ {trades[trades.length - 1].duracao} PERÍODOS

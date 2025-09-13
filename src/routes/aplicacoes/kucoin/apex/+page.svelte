@@ -13,7 +13,7 @@
 	let simbolo = $state<typeSimbolo>('BTC-USDT');
 	let periodo = $state<typePeriodo>('1day');
 	let agora = $state<Date>();
-	let quantidade = $state(600);
+	let quantidade = $state(100);
 </script>
 
 <div class="p-5">

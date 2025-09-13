@@ -18,6 +18,8 @@ export const funcaoOperacoes = function ({
 	let stopAtual: number = 12345;
 	return pontosDeCompra.map((pontoDeCompraCorrente, contador): typeOperacao => {
 		const pontodeVendaCorrente = pontosDeVenda[contador];
+		const deveComprar = pontoDeCompraCorrente.y !== null;
+		const deveVender = pontodeVendaCorrente.y !== null;
 		const objetoNaoOperar: typeOperacao = {
 			ponto: {
 				x: pontoDeCompraCorrente.x,
@@ -25,21 +27,9 @@ export const funcaoOperacoes = function ({
 			},
 			tipo: 'enumNaoOperar',
 		};
-		if (pontoDeCompraCorrente.y === null && pontodeVendaCorrente.y === null) {
-			if (contador === pontosDeCompra.length - 1) {
-				return {
-					tipo: 'enumAguardar',
-					ponto: {
-						x: pontoDeCompraCorrente.x,
-						y: null,
-					},
-				};
-			}
 
-			return objetoNaoOperar;
-		}
 		if (pesquisandoPor === 'enumCompra') {
-			if (pontoDeCompraCorrente.y === null) {
+			if (!deveComprar) {
 				return objetoNaoOperar;
 			}
 			if (funcaoStop && velas) {
@@ -47,6 +37,8 @@ export const funcaoOperacoes = function ({
 					velas,
 					agora: contador,
 				});
+
+				// console.log(pontoDeCompraCorrente.x);
 			}
 			pesquisandoPor = 'enumVenda';
 			return {
@@ -54,18 +46,25 @@ export const funcaoOperacoes = function ({
 				ponto: pontoDeCompraCorrente,
 			};
 		}
+
 		if (pesquisandoPor === 'enumVenda') {
+			// console.log(pontodeVendaCorrente.x);
+
 			if (velas && funcaoStop) {
 				if (velas[contador].y[3] < stopAtual) {
 					pesquisandoPor = 'enumCompra';
 					return {
 						tipo: 'enumVender',
-						ponto: pontodeVendaCorrente,
+						ponto: {
+							// AQUI FOI NECESSÁRIO RESTITUIR O PREÇO A PARTIR DA VELA, POIS NÃO É UM PONTO DE VENDA OFICIAL (A VENDA SE DEVE AO STOP)
+							x: velas[contador].x,
+							y: velas[contador].y[3],
+						},
 					};
 				}
 			}
 
-			if (pontodeVendaCorrente.y === null) {
+			if (!deveVender) {
 				if (contador === pontosDeCompra.length - 1) {
 					return {
 						tipo: 'enumAguardar',

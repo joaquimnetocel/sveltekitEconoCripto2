@@ -8,20 +8,16 @@ import type { typeVela } from './typeVela';
 export function funcaoCalcularTrades({
 	velas,
 	linhas,
-	funcaoStop,
 }: {
 	velas: typeVela[];
 	linhas: typePonto[][];
-	funcaoStop?: typeFuncaoStop;
 }) {
 	if (velas === undefined) throw Error;
-	const aa = criterios.compras(velas, linhas);
-	console.log(aa.map((ca) => ca.y));
 	const operacoes = funcaoOperacoes({
-		pontosDeCompra: aa,
+		pontosDeCompra: criterios.compras(velas, linhas),
 		pontosDeVenda: criterios.vendas(velas, linhas),
 		velas,
-		funcaoStop,
+		funcaoStop: 'stop' in criterios ? criterios.stop : undefined,
 	});
 	const ultimoFechamento = velas[velas.length - 1].y[3];
 	return funcaoTrades(operacoes, ultimoFechamento);
