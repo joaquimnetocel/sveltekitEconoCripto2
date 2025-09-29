@@ -7,7 +7,7 @@
 	import { funcaoKucoinParaApex } from '$lib/conversoes/funcaoKucoinParaApex';
 	import type { typePeriodo } from '$lib/kucoin/typePeriodo';
 	import type { typeSimbolo } from '$lib/kucoin/typeSimbolo';
-	import { estados } from './estados.svelte';
+	import { funcaoCriarEstados } from './estados.svelte';
 	import { funcaoFetchDaApi } from './funcaoFetchDaApi';
 
 	let {
@@ -15,15 +15,20 @@
 		simbolo,
 		periodo = '1day',
 		quantidade,
+		atualizacao = true,
+		concluido = $bindable(false),
+		trades = $bindable([]),
 	}: {
 		agora: Date;
 		simbolo: typeSimbolo;
 		periodo?: typePeriodo;
 		quantidade: number;
+		atualizacao?: boolean;
+		concluido?: boolean;
+		trades?: typeTrade[];
 	} = $props();
 
 	let velas = $state<typeVela[]>();
-	let trades = $state<typeTrade[]>([]);
 	let exibirVelas = $state(false);
 	let exibirLinhas = $state(false);
 
@@ -31,20 +36,20 @@
 	let lucroHoldingDiario = $state<number>(0);
 	let lucroHoldingMensal = $state<number>(0);
 
-	// let lucro = $derived(
-	// 	trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
-	// );
+	let estados = funcaoCriarEstados();
 
 	let diasInvestido = $derived(
 		trades.reduce((acumulado, corrente) => acumulado + corrente.duracao, 0),
 	);
 
-	let lucro = $derived(
+	let fatorDeLucro = $derived(
 		trades.reduce((acumulado, corrente) => acumulado * corrente.fatorDeLucro, 1),
 	);
 
-	let lucroDiario = $derived(Math.pow(lucro, 1 / diasInvestido));
-	let lucroMensal = $derived(Math.pow(lucroDiario, 30));
+	let fatorDeLucroDiario = $derived(
+		diasInvestido === 0 ? 1 : Math.pow(fatorDeLucro, 1 / diasInvestido),
+	);
+	let fatorDeLucroMensal = $derived(Math.pow(fatorDeLucroDiario, 30));
 
 	async function funcaoPreencherVelas() {
 		const dados_sem_tipagem = await funcaoFetchDaApi({
@@ -88,10 +93,15 @@
 		const pontosHighest = estados.highest.map((corrente) => corrente.dados);
 		const pontosLowest = estados.lowest.map((corrente) => corrente.dados);
 		const linhas = [...pontosHighest, ...pontosLowest];
-		trades = funcaoCalcularTrades({
-			velas,
-			linhas,
-		});
+		if (velas.length > 100) {
+			trades = funcaoCalcularTrades({
+				velas,
+				linhas,
+			});
+		} else {
+			trades = [];
+		}
+		concluido = true;
 		// console.log($state.snapshot(trades));
 	}
 
@@ -99,6 +109,9 @@
 	let hora = $derived(agora.getHours());
 
 	$effect(() => {
+		if (atualizacao === false) {
+			return;
+		}
 		if (periodo === '1min') {
 			void minuto;
 			funcaoPreencherVelas();
@@ -149,31 +162,37 @@
 		</div>
 		<Velas
 			velas={velas as typeVela[]}
-			linhas={[...estados.mediasmoveisexponenciais]}
+			linhas={[...estados.mediasmoveisexponenciais, ...estados.highest, ...estados.lowest]}
 			{trades}
 			exibir={exibirVelas}
 		/>
 		<div class="text-center">
-			<span class="font-extrabold" class:text-green-500={lucro > 1} class:text-red-500={lucro < 1}
-				>{lucro > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((lucro - 1) * 100).toFixed(2)}%</span
+			<span
+				class="font-extrabold"
+				class:text-green-500={fatorDeLucroMensal > 1}
+				class:text-red-500={fatorDeLucro < 1}
+				>{fatorDeLucroMensal > 1 ? 'LUCRO' : 'PREJUÍZO'}: {((fatorDeLucroMensal - 1) * 100).toFixed(
+					2,
+				)}%</span
 			>
 		</div>
 		<div class="text-center">
 			<span
 				class="font-extrabold"
-				class:text-green-500={lucroHolding > 1}
-				class:text-red-500={lucroHolding < 1}
-				>{lucroHolding > 1 ? 'LUCRO HOLDING' : 'PREJUÍZO HOLDING'}: {(
-					(lucroHolding - 1) *
+				class:text-green-500={lucroHoldingMensal > 1}
+				class:text-red-500={lucroHoldingMensal < 1}
+				>{lucroHoldingMensal > 1 ? 'LUCRO HOLDING' : 'PREJUÍZO HOLDING'}: {(
+					(lucroHoldingMensal - 1) *
 					100
 				).toFixed(2)}%</span
 			>
 		</div>
-
-		{#if trades[trades.length - 1].enumGanhoOuPerda === 'enumNaoRealizado'}
-			<div class="text-center font-bold text-yellow-500">
-				EM ANDAMENTO HÁ {trades[trades.length - 1].duracao} PERÍODOS
-			</div>
+		{#if trades.length > 0}
+			{#if trades[trades.length - 1].enumGanhoOuPerda === 'enumNaoRealizado'}
+				<div class="text-center font-bold text-yellow-500">
+					EM ANDAMENTO HÁ {trades[trades.length - 1].duracao} PERÍODOS
+				</div>
+			{/if}
 		{/if}
 		<!-- <div class="text-center">
 			RSI 1: {estados.rsi[0].dados[estados.rsi[0].dados.length - 1].y} / RSI 2: {estados.rsi[1]
@@ -182,5 +201,3 @@
 		<Linhas linhas={estados.rsi} exibir={exibirLinhas} />
 	{/await}
 </div>
-{lucroMensal}
-{lucroHoldingMensal}
