@@ -73,12 +73,12 @@
 		});
 		estados.funcaoHighest({
 			velas,
-			periodo: [20],
+			periodo: [55],
 			cores: ['green'],
 		});
 		estados.funcaoLowest({
 			velas,
-			periodo: [10],
+			periodo: [20],
 			cores: ['purple'],
 		});
 		estados.funcaoRsi({
@@ -93,14 +93,14 @@
 		const pontosHighest = estados.highest.map((corrente) => corrente.dados);
 		const pontosLowest = estados.lowest.map((corrente) => corrente.dados);
 		const linhas = [...pontosHighest, ...pontosLowest];
-		if (velas.length > 100) {
-			trades = funcaoCalcularTrades({
-				velas,
-				linhas,
-			});
-		} else {
-			trades = [];
-		}
+		//if (velas.length > 100) {
+		trades = funcaoCalcularTrades({
+			velas,
+			linhas,
+		});
+		//} else {
+		//	trades = [];
+		//}
 		concluido = true;
 		// console.log($state.snapshot(trades));
 	}

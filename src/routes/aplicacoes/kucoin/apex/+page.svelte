@@ -80,3 +80,5 @@
 {#if todosConcluidos}
 	<Threemap dados={fatoresDeLucroMensal} />
 {/if}
+
+{JSON.stringify(trades)}
