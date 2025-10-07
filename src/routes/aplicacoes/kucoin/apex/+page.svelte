@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Threemap from '$lib/apex/Threemap.svelte';
+	// import Threemap from '$lib/apex/Threemap.svelte';
 	import type { typeTrade } from '$lib/apex/typeTrade';
 	import Hora from '$lib/componentes/Hora.svelte';
 	import OpcoesDoGrafico from '$lib/componentes/OpcoesDoGrafico.svelte';
@@ -10,11 +10,13 @@
 	import type { typePeriodo } from '$lib/kucoin/typePeriodo';
 	import type { typeSimbolo } from '$lib/kucoin/typeSimbolo';
 	import type { PageProps } from './$types';
+	import Datas from './Datas.svelte';
 	import Grafico from './Grafico.svelte';
 
 	let { data }: PageProps = $props();
 
-	const quantidadeDeSimbolos = 11;
+	const quantidadeDeSimbolos = 80;
+	const atualizacao = false;
 
 	let simbolo = $state<typeSimbolo>('BTC-USDT');
 	let periodo = $state<typePeriodo>('1day');
@@ -26,6 +28,7 @@
 			return [];
 		}),
 	);
+	let datas = $state<Date[]>([]);
 
 	let todosConcluidos = $derived(!concluidos.includes(false));
 
@@ -42,7 +45,63 @@
 			};
 		}),
 	);
+
+	let aaa = $derived.by(() => {
+		if (todosConcluidos === false || datas.length === 0) {
+			return;
+		}
+		const flatTrades = $state.snapshot(trades).flat();
+		let capitalInicial = 1000;
+		let capital = capitalInicial;
+		const porcentagemDeInvestimento = 0.1;
+		const investimentos: { trade: typeTrade; capital: number }[] = [];
+		let ontem: Date | undefined = undefined;
+		datas.forEach((dataDeHoje) => {
+			if (ontem !== undefined) {
+				const quaisManter = investimentos.map((investimentoCorrente) => {
+					if (ontem === undefined) return true;
+					if (investimentoCorrente.trade.dataDaVenda.getTime() === ontem.getTime()) {
+						capital =
+							capital + investimentoCorrente.capital * investimentoCorrente.trade.fatorDeLucro;
+						return false;
+					}
+					return true;
+				});
+				const investimentosParaManter = investimentos.filter(
+					(_, contador) => quaisManter[contador],
+				);
+				investimentos.length = 0;
+				investimentos.push(...investimentosParaManter);
+			}
+
+			const tradesComCompraHoje = flatTrades.filter((currentTrade) => {
+				return currentTrade.dataDaCompra.getTime() === dataDeHoje.getTime();
+			});
+			if (tradesComCompraHoje.length > 0) {
+				const investimentosHoje = tradesComCompraHoje.map((corrente) => {
+					return {
+						trade: corrente,
+						capital: (capital * porcentagemDeInvestimento) / tradesComCompraHoje.length,
+					};
+				});
+				investimentos.push(...investimentosHoje);
+				capital = capital * (1 - porcentagemDeInvestimento);
+			}
+			console.log(capital + funcaoSoma(investimentos.map((aa) => aa.capital)));
+			ontem = dataDeHoje;
+		});
+
+		investimentos.forEach((investimentoCorrente) => {
+			capital = capital + investimentoCorrente.capital * investimentoCorrente.trade.fatorDeLucro;
+		});
+		investimentos.length = 0;
+
+		console.log(investimentos);
+		return capital / capitalInicial;
+	});
 </script>
+
+{JSON.stringify(aaa)}
 
 <div class="p-5">
 	<a class="classButton mb-2" href="/">VOLTAR</a>
@@ -66,19 +125,20 @@
 						{periodo}
 						{agora}
 						{quantidade}
-						atualizacao={false}
+						{atualizacao}
 						bind:concluido={concluidos[i]}
 						bind:trades={trades[i]}
 					/>
 				{/if}
 			{/each}
+			<Datas simbolo="BTC-USDT" {periodo} {agora} {quantidade} {atualizacao} bind:datas />
 			<!-- <Grafico simbolo="AI3-USDT" {periodo} {agora} {quantidade} /> -->
 		{/if}
 	</div>
 </div>
 
-{#if todosConcluidos}
+<!-- {#if todosConcluidos}
 	<Threemap dados={fatoresDeLucroMensal} />
-{/if}
+{/if} -->
 
-{JSON.stringify(trades)}
+<!-- {JSON.stringify(trades)} -->
